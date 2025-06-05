@@ -31,10 +31,9 @@ const socialLinks: SocialLink[] = [
 interface MenuOverlayProps {
   isOpen: boolean
   onClose: () => void
-  onToggle: () => void
 }
 
-const MenuOverlay = ({ isOpen, onClose, onToggle }: MenuOverlayProps) => {
+const MenuOverlay = ({ isOpen, onClose }: MenuOverlayProps) => {
   // GSAP Animation setup
   useEffect(() => {
     if (isOpen) {

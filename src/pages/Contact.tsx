@@ -89,12 +89,12 @@ const Contact = () => {
       
       // Reset success message after 5 seconds
       setTimeout(() => setSubmitStatus('idle'), 5000)
-    } catch (error) {
+    } catch {
       setSubmitStatus('error')
     } finally {
       setIsSubmitting(false)
     }
-  }, [formData, validateForm])
+  }, [validateForm])
 
   return (
     <section 

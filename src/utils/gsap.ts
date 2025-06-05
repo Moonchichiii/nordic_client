@@ -58,7 +58,8 @@ export const animateText = {
   ) => {
     const { stagger = STAGGER.normal, delay = 0, duration = DURATION.normal, ease = 'premium' } = options
     
-    const split = new SplitText(element, {
+    // Create split text without storing unused reference
+    new SplitText(element, {
       type: 'chars',
       charsClass: 'char',
     })
@@ -89,7 +90,8 @@ export const animateText = {
   ) => {
     const { stagger = STAGGER.normal, delay = 0, duration = DURATION.normal, ease = 'premium' } = options
     
-    const split = new SplitText(element, {
+    // Create split text without storing unused reference
+    new SplitText(element, {
       type: 'words',
       wordsClass: 'word',
     })
