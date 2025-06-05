@@ -1,49 +1,100 @@
-import { useEffect, useRef } from 'react'
-import { gsap } from 'gsap'
-import './App.css'
+import { useEffect, useState, useCallback } from 'react'
+import Layout from '@components/Layout'
+import Navbar from '@components/Navbar'
+import MenuOverlay from '@components/MenuOverlay'
+import Hero from '@pages/Hero'
+import Work from '@pages/Work'
+import Process from '@pages/Process'
+import About from '@pages/About'
+import Contact from '@pages/Contact'
 
 function App() {
-  const titleRef = useRef<HTMLHeadingElement>(null)
-  const boxRef = useRef<HTMLDivElement>(null)
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
 
-  useEffect(() => {
-    // Test GSAP animation
-    const tl = gsap.timeline()
-    
-    tl.from(titleRef.current, {
-      duration: 1,
-      y: -50,
-      opacity: 0,
-      ease: "bounce.out"
-    })
-    .from(boxRef.current, {
-      duration: 1,
-      scale: 0,
-      rotation: 180,
-      ease: "back.out(1.7)"
-    }, "-=0.5")
+  const toggleMenu = useCallback(() => {
+    setIsMenuOpen(prev => !prev)
   }, [])
 
+  const closeMenu = useCallback(() => {
+    setIsMenuOpen(false)
+  }, [])
+
+  // Handle body scroll lock and app transformation
+  useEffect(() => {
+    const body = document.body
+    const appContainer = document.querySelector('.app-container')
+    
+    if (isMenuOpen) {
+      // Lock body scroll and transform app
+      body.classList.add('menu-open')
+      appContainer?.classList.add('menu-open')
+    } else {
+      // Restore body scroll and app
+      body.classList.remove('menu-open')
+      appContainer?.classList.remove('menu-open')
+    }
+
+    // Cleanup on unmount
+    return () => {
+      body.classList.remove('menu-open')
+      appContainer?.classList.remove('menu-open')
+    }
+  }, [isMenuOpen])
+
+  // Handle escape key to close menu
+  useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && isMenuOpen) {
+        closeMenu()
+      }
+    }
+
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element
+      if (isMenuOpen && target.closest('.menu-overlay-content')) {
+        return
+      }
+      if (isMenuOpen && !target.closest('.menu-toggle')) {
+        closeMenu()
+      }
+    }
+
+    document.addEventListener('keydown', handleEscape)
+    document.addEventListener('click', handleClickOutside)
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape)
+      document.removeEventListener('click', handleClickOutside)
+    }
+  }, [isMenuOpen, closeMenu])
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-400 via-pink-500 to-red-500 flex items-center justify-center">
-      <div className="text-center">
-        <h1 
-          ref={titleRef}
-          className="text-6xl font-bold text-white mb-8 drop-shadow-lg"
-        >
-          Nordic Client
-        </h1>
-        <div 
-          ref={boxRef}
-          className="w-32 h-32 bg-white rounded-2xl shadow-2xl mx-auto mb-8 flex items-center justify-center"
-        >
-          <span className="text-2xl">🚀</span>
-        </div>
-        <p className="text-xl text-white/90 max-w-md">
-          React + TypeScript + Vite + Tailwind + GSAP = ✨ Magic
-        </p>
+    <>
+      {/* Menu Overlay */}
+      <MenuOverlay 
+        isOpen={isMenuOpen} 
+        onClose={closeMenu}
+        onToggle={toggleMenu}
+      />
+      
+      {/* Main App Container */}
+      <div className="app-container">
+        <Navbar 
+          isMenuOpen={isMenuOpen} 
+          onToggle={toggleMenu} 
+        />
+        
+        <Layout>
+          <main id="main-content" role="main">
+            <Hero />
+            <Work />
+            <Process />
+            <About />
+            <Contact />
+          </main>
+        </Layout>
       </div>
-    </div>
+    </>
   )
 }
 
