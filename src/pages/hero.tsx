@@ -1,44 +1,51 @@
-import { useEffect, useRef } from 'react'
-import { animateText, createTimeline, STAGGER } from '@utils/gsap'
+import { Monitor, Moon, Sun } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
 
 const Hero = () => {
   const heroRef = useRef<HTMLElement>(null)
   const titleRef = useRef<HTMLHeadingElement>(null)
   const subtitleRef = useRef<HTMLParagraphElement>(null)
   const ctaRef = useRef<HTMLDivElement>(null)
+  const [theme, setTheme] = useState<'light' | 'dark' | 'system'>('dark')
 
+  // Theme management with Tailwind 4.0 best practices
   useEffect(() => {
-    if (!titleRef.current || !subtitleRef.current || !ctaRef.current) return
-
-    const tl = createTimeline({
-      defaults: { ease: 'premium' }
-    })
-
-    // Animate title characters
-    const titleAnimation = animateText.splitChars(titleRef.current, {
-      stagger: 0.03,
-      duration: 0.8,
-    })
-
-    // Animate subtitle words
-    const subtitleAnimation = animateText.splitWords(subtitleRef.current, {
-      stagger: STAGGER.tight,
-      duration: 0.6,
-    })
-
-    // Build timeline
-    tl.add(titleAnimation)
-      .add(subtitleAnimation, '-=0.4')
-      .fromTo(ctaRef.current, 
-        { opacity: 0, y: 40 },
-        { opacity: 1, y: 0, duration: 0.8 },
-        '-=0.3'
-      )
-
-    return () => {
-      tl.kill()
-    }
+    const savedTheme = (localStorage.getItem('theme') as 'light' | 'dark' | 'system') || 'dark'
+    setTheme(savedTheme)
+    applyTheme(savedTheme)
   }, [])
+
+  const applyTheme = (newTheme: 'light' | 'dark' | 'system') => {
+    const root = document.documentElement
+
+    if (newTheme === 'system') {
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+      root.classList.toggle('dark', prefersDark)
+    } else {
+      root.classList.toggle('dark', newTheme === 'dark')
+    }
+
+    localStorage.setItem('theme', newTheme)
+  }
+
+  const toggleTheme = () => {
+    const themes: ('light' | 'dark' | 'system')[] = ['light', 'dark', 'system']
+    const currentIndex = themes.indexOf(theme)
+    const nextTheme = themes[(currentIndex + 1) % themes.length]
+    setTheme(nextTheme)
+    applyTheme(nextTheme)
+  }
+
+  const getThemeIcon = () => {
+    switch (theme) {
+      case 'light':
+        return <Sun size={20} />
+      case 'dark':
+        return <Moon size={20} />
+      case 'system':
+        return <Monitor size={20} />
+    }
+  }
 
   const scrollToWork = () => {
     const workSection = document.getElementById('work')
@@ -53,108 +60,138 @@ const Hero = () => {
   return (
     <section
       ref={heroRef}
-      className="min-h-screen flex items-center justify-center relative overflow-hidden"
-      style={{
-        background: `
-          radial-gradient(ellipse 80% 50% at 50% -20%, hsl(240 100% 70% / 0.08), transparent),
-          radial-gradient(ellipse 60% 40% at 50% 120%, hsl(280 100% 70% / 0.06), transparent),
-          linear-gradient(135deg, hsl(220 30% 5%) 0%, hsl(220 30% 8%) 100%)
-        `
-      }}
+      className="min-h-screen flex items-center justify-center relative overflow-hidden
+                 bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50
+                 dark:bg-gradient-to-br dark:from-slate-900 dark:via-slate-800 dark:to-slate-900
+                 transition-all duration-700"
       aria-labelledby="hero-title"
     >
+      {/* Theme Toggle - Top Right */}
+      <button
+        onClick={toggleTheme}
+        className="fixed top-6 right-6 z-50 w-12 h-12 rounded-2xl
+                   bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg
+                   border border-slate-200 dark:border-slate-700
+                   text-slate-600 dark:text-slate-300
+                   hover:text-blue-600 dark:hover:text-blue-400
+                   hover:scale-110 hover:rotate-12
+                   focus:outline-none focus:ring-2 focus:ring-blue-500
+                   transition-all duration-300 shadow-lg hover:shadow-xl
+                   flex items-center justify-center"
+        aria-label={`Switch to ${
+          theme === 'light' ? 'dark' : theme === 'dark' ? 'system' : 'light'
+        } mode`}
+      >
+        {getThemeIcon()}
+      </button>
+
       {/* Background decoration */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
-        <div className="absolute top-1/4 right-1/3 w-[60vmin] h-[60vmin]
-                      bg-gradient-to-r from-blue-600/10 to-purple-600/8 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/3 left-1/4 w-[50vmin] h-[50vmin]
-                      bg-gradient-to-r from-purple-600/8 to-blue-600/6 rounded-full blur-3xl" />
+        {/* Light mode gradients */}
+        <div
+          className="absolute top-1/4 right-1/3 w-[60vmin] h-[60vmin]
+                      bg-gradient-to-r from-blue-200/30 to-purple-200/20 rounded-full blur-3xl
+                      dark:from-blue-600/10 dark:to-purple-600/8"
+        />
+        <div
+          className="absolute bottom-1/3 left-1/4 w-[50vmin] h-[50vmin]
+                      bg-gradient-to-r from-purple-200/20 to-blue-200/15 rounded-full blur-3xl
+                      dark:from-purple-600/8 dark:to-blue-600/6"
+        />
+
+        {/* Floating orbs */}
+        <div className="absolute top-20 left-20 w-4 h-4 bg-blue-400/40 dark:bg-blue-500/30 rounded-full animate-pulse" />
+        <div className="absolute top-40 right-32 w-6 h-6 bg-purple-400/30 dark:bg-purple-500/20 rounded-full animate-pulse delay-700" />
+        <div className="absolute bottom-32 left-1/3 w-3 h-3 bg-blue-300/50 dark:bg-blue-400/30 rounded-full animate-pulse delay-1000" />
       </div>
 
-      {/* COMPLETELY NEW LAYOUT - Split Design */}
-      <div className="w-full max-w-7xl mx-auto relative z-10 px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center min-h-[85vh]">
-          
-          {/* LEFT SIDE - Big Title */}
-          <div className="order-2 lg:order-1">
+      {/* CENTERED RESPONSIVE LAYOUT */}
+      <div className="w-full max-w-6xl mx-auto relative z-10 px-4 sm:px-6 lg:px-8">
+        <div className="text-center space-y-12">
+          {/* MAIN TITLE - Ultra Bold */}
+          <div className="space-y-4">
             <h1
               ref={titleRef}
               id="hero-title"
-              className="font-heading tracking-tight text-white text-left"
+              className="font-black tracking-tighter text-center
+                       text-slate-900 dark:text-white
+                       drop-shadow-sm"
               style={{
-                fontSize: 'clamp(3rem, 8vw, 9rem)',
-                lineHeight: '0.8',
-                fontWeight: '900'
+                fontSize: 'clamp(3rem, 10vw, 12rem)',
+                lineHeight: '0.75',
+                fontWeight: '900',
               }}
             >
-              <span className="block text-white/95 drop-shadow-lg">NORDIC</span>
-              <span className="block text-blue-500 font-black drop-shadow-lg">CODE</span>
-              <span className="block text-white/90 drop-shadow-lg">WORKS</span>
-            </h1>
-            
-            {/* Small subtitle under title */}
-            <div className="mt-6">
-              <p
-                ref={subtitleRef}
-                className="font-display text-white/60 text-left max-w-md"
-                style={{ fontSize: '1.1rem', lineHeight: '1.5' }}
+              <span className="block text-slate-900 dark:text-slate-100">NORDIC</span>
+              <span
+                className="block bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 
+                             bg-clip-text text-transparent font-black"
               >
-                Digital experiences with Nordic precision
-              </p>
-            </div>
+                CODE
+              </span>
+              <span className="block text-slate-800 dark:text-slate-200">WORKS</span>
+            </h1>
+
+            {/* Subtitle */}
+            <p
+              ref={subtitleRef}
+              className="text-xl md:text-2xl lg:text-3xl font-medium text-center max-w-2xl mx-auto
+                       text-slate-600 dark:text-slate-400 leading-relaxed"
+            >
+              Digital experiences with{' '}
+              <span className="font-bold text-blue-600 dark:text-blue-400">Nordic precision</span>
+            </p>
           </div>
 
-          {/* RIGHT SIDE - CTA Focus Area */}
-          <div className="order-1 lg:order-2">
-            <div ref={ctaRef} className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8 lg:p-10">
-              
-              {/* CTA Header */}
-              <div className="text-center mb-8">
-                <h2 className="text-2xl lg:text-3xl font-display font-bold text-white mb-3">
-                  Ready to Build Something Great?
-                </h2>
-                <p className="text-white/70 text-lg">
-                  Let's discuss your next project
-                </p>
-              </div>
+          {/* MODERNIZED CTA BUTTONS - No Frame */}
+          <div
+            ref={ctaRef}
+            className="flex flex-col sm:flex-row gap-6 items-center justify-center max-w-lg mx-auto"
+          >
+            {/* Primary CTA - Clean & Modern */}
+            <button
+              onClick={scrollToWork}
+              className="group relative w-full sm:w-auto px-8 py-4 rounded-2xl
+                       bg-gradient-to-r from-blue-600 to-purple-600
+                       hover:from-blue-700 hover:to-purple-700
+                       text-white font-bold text-lg
+                       transform hover:scale-105 hover:-translate-y-1
+                       transition-all duration-300 ease-out
+                       shadow-lg hover:shadow-2xl hover:shadow-blue-500/25
+                       focus:outline-none focus:ring-4 focus:ring-blue-500/50
+                       min-h-[3.5rem] flex items-center justify-center gap-3"
+            >
+              <span className="text-2xl group-hover:rotate-12 transition-transform duration-300"></span>
+              <span className="tracking-wide">See Our Work</span>
+              <div className="absolute inset-0 rounded-2xl bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            </button>
 
-              {/* Large CTA Buttons */}
-              <div className="space-y-4">
-                <button
-                  onClick={scrollToWork}
-                  className="btn-primary w-full text-lg px-8 py-5 min-h-[60px] text-center
-                           shadow-2xl hover:shadow-blue-500/30 transform hover:scale-[1.02]"
-                >
-                  <span className="text-xl mr-3">🎯</span>
-                  <span className="font-bold">See Our Work</span>
-                </button>
-                
-                <button
-                  onClick={scrollToContact}
-                  className="btn-secondary w-full text-lg px-8 py-5 min-h-[60px] text-center
-                           hover:bg-white/15 transform hover:scale-[1.02]"
-                >
-                  <span className="text-xl mr-3">💬</span>
-                  <span className="font-bold">Start a Project</span>
-                </button>
-              </div>
-              
-              {/* Trust signals */}
-              <div className="text-center mt-8 pt-6 border-t border-white/10">
-                <p className="text-white/50 text-sm">
-                  <span className="text-white/80 font-semibold">50+ projects delivered</span> • 
-                  <span className="text-white/80 font-semibold"> 5-star rating</span>
-                </p>
-                <div className="flex justify-center mt-3">
-                  <div className="flex space-x-1">
-                    {[...Array(5)].map((_, i) => (
-                      <span key={i} className="text-yellow-400 text-lg">★</span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
+            {/* Secondary CTA - Clean Glass Effect */}
+            <button
+              onClick={scrollToContact}
+              className="group relative w-full sm:w-auto px-8 py-4 rounded-2xl
+                       bg-white/10 dark:bg-slate-800/30 backdrop-blur-sm
+                       border-2 border-slate-300/30 dark:border-slate-600/30
+                       hover:bg-white/20 dark:hover:bg-slate-700/40
+                       hover:border-slate-400/50 dark:hover:border-slate-500/50
+                       text-slate-800 dark:text-white font-bold text-lg
+                       transform hover:scale-105 hover:-translate-y-1
+                       transition-all duration-300 ease-out
+                       shadow-lg hover:shadow-xl
+                       focus:outline-none focus:ring-4 focus:ring-slate-500/50
+                       min-h-[3.5rem] flex items-center justify-center gap-3"
+            >
+              <span className="text-2xl group-hover:rotate-12 transition-transform duration-300"></span>
+              <span className="tracking-wide">Start Project</span>
+            </button>
           </div>
+        </div>
+      </div>
+
+      {/* Scroll Indicator */}
+      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+        <div className="w-6 h-10 border-2 border-slate-400 dark:border-slate-500 rounded-full flex justify-center">
+          <div className="w-1 h-3 bg-slate-600 dark:bg-slate-400 rounded-full mt-2 animate-pulse" />
         </div>
       </div>
     </section>
