@@ -1,101 +1,109 @@
-import { useEffect, useState, useCallback } from 'react'
-import Layout from '@components/Layout'
-import Navbar from '@components/Navbar'
-import MenuOverlay from '@components/MenuOverlay'
-import Hero from '@pages/Hero'
-import Work from '@pages/Work'
-import Process from '@pages/Process'
-import About from '@pages/About'
-import Contact from '@pages/Contact'
+import { lazy, Suspense } from 'react'
+import { ErrorBoundary } from 'react-error-boundary'
+import Layout from '@/components/Layout'
 
-function App() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
+// Lazy load 
+const Hero = lazy(() => import('@/pages/Hero'))
+const Work = lazy(() => import('@/pages/Work'))
+const Process = lazy(() => import('@/pages/Process'))
+const About = lazy(() => import('@/pages/About'))
+const Contact = lazy(() => import('@/pages/Contact'))
 
-  const toggleMenu = useCallback(() => {
-    setIsMenuOpen(prev => !prev)
-  }, [])
-
-  const closeMenu = useCallback(() => {
-    setIsMenuOpen(false)
-  }, [])
-
-  // Handle body scroll lock and app transformation
-  useEffect(() => {
-    const body = document.body
-    const appContainer = document.querySelector('.app-container')
-    
-    if (isMenuOpen) {
-      // Lock body scroll and transform app
-      body.classList.add('menu-open')
-      appContainer?.classList.add('menu-open')
-    } else {
-      // Restore body scroll and app
-      body.classList.remove('menu-open')
-      appContainer?.classList.remove('menu-open')
-    }
-
-    // Cleanup on unmount
-    return () => {
-      body.classList.remove('menu-open')
-      appContainer?.classList.remove('menu-open')
-    }
-  }, [isMenuOpen])
-
-  // Handle escape key to close menu
-  useEffect(() => {
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && isMenuOpen) {
-        closeMenu()
-      }
-    }
-
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as Element
-      if (isMenuOpen && target.closest('.menu-overlay-content')) {
-        return
-      }
-      if (isMenuOpen && !target.closest('.menu-toggle')) {
-        closeMenu()
-      }
-    }
-
-    document.addEventListener('keydown', handleEscape)
-    document.addEventListener('click', handleClickOutside)
-
-    return () => {
-      document.removeEventListener('keydown', handleEscape)
-      document.removeEventListener('click', handleClickOutside)
-    }
-  }, [isMenuOpen, closeMenu])
-
-  return (
-    <>
-      {/* Menu Overlay */}
-      <MenuOverlay 
-        isOpen={isMenuOpen} 
-        onClose={closeMenu}
-        onToggle={toggleMenu}
-      />
-      
-      {/* Main App Container */}
-      <div className="app-container">
-        <Navbar 
-          isMenuOpen={isMenuOpen} 
-          onToggle={toggleMenu} 
-        />
-        
-        <Layout>
-          <main id="main-content" role="main">
-            <Hero />
-            <Work />
-            <Process />
-            <About />
-            <Contact />
-          </main>
-        </Layout>
-      </div>
-    </>
-  )
+// Enhanced loading component
+interface SectionLoaderProps {
+  className?: string
+  section?: string
 }
 
-export default App
+const SectionLoader = ({ className = "", section = "content" }: SectionLoaderProps) => (
+  <div 
+    className={`flex flex-col items-center justify-center py-20 ${className}`} 
+    role="status" 
+    aria-label={`Loading ${section}`}
+  >
+    <div className="relative">
+      <div className="w-12 h-12 border-3 border-blue-500/20 border-t-blue-500 rounded-full animate-spin" />
+      <div className="absolute inset-0 w-12 h-12 border-3 border-purple-500/20 border-b-purple-500 rounded-full animate-spin animate-reverse" />
+    </div>
+    <span className="sr-only">Loading {section}...</span>
+    <p className="mt-4 text-slate-400 text-sm animate-pulse">Loading {section}...</p>
+  </div>
+)
+
+// Error fallback component
+interface ErrorFallbackProps {
+  error: Error
+  resetErrorBoundary: () => void
+}
+
+const ErrorFallback = ({ error, resetErrorBoundary }: ErrorFallbackProps) => (
+  <div className="min-h-screen flex items-center justify-center bg-slate-900 px-6">
+    <div className="text-center max-w-md">
+      <h2 className="text-2xl font-bold text-white mb-4">Something went wrong</h2>
+      <p className="text-slate-400 mb-6">
+        {error.message || 'An unexpected error occurred. Please try again.'}
+      </p>
+      <button
+        onClick={resetErrorBoundary}
+        className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg
+                 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+      >
+        Try Again
+      </button>
+    </div>
+  </div>
+)
+
+// Page sections 
+const sections = [
+  {
+    id: 'hero',
+    component: Hero,
+    className: 'min-h-screen bg-slate-900',
+    name: 'hero'
+  },
+  {
+    id: 'work',
+    component: Work,
+    className: 'bg-slate-900',
+    name: 'work portfolio'
+  },
+  {
+    id: 'process',
+    component: Process,
+    className: 'bg-slate-800',
+    name: 'process'
+  },
+  {
+    id: 'about',
+    component: About,
+    className: 'bg-slate-900',
+    name: 'about'
+  },
+  {
+    id: 'contact',
+    component: Contact,
+    className: 'bg-slate-100 dark:bg-slate-800',
+    name: 'contact'
+  }
+] as const
+
+export default function App() {
+  return (
+    <ErrorBoundary FallbackComponent={ErrorFallback}>
+      <Layout>
+        {sections.map(({ id, component: Component, className, name }) => (
+          <ErrorBoundary 
+            key={id}
+            FallbackComponent={ErrorFallback}
+            onReset={() => window.location.reload()}
+          >
+            <Suspense fallback={<SectionLoader className={className} section={name} />}>
+              <Component />
+            </Suspense>
+          </ErrorBoundary>
+        ))}
+      </Layout>
+    </ErrorBoundary>
+  )
+}

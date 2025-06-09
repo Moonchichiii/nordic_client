@@ -1,5 +1,5 @@
-import { Mail, MapPin } from 'lucide-react'
-import { useCallback, useState } from 'react'
+import { Mail, MapPin, Clock, CheckCircle } from 'lucide-react'
+import { useCallback, useState, memo } from 'react'
 
 interface FormData {
   name: string
@@ -13,7 +13,51 @@ interface FormErrors {
   message?: string
 }
 
-const Contact = () => {
+const ContactInfoItem = memo(({ 
+  icon: Icon, 
+  title, 
+  content, 
+  href, 
+  index 
+}: { 
+  icon: any
+  title: string
+  content: string
+  href?: string
+  index: number 
+}) => (
+  <div 
+    className="flex items-center gap-4 group animate-fade-in-up"
+    style={{ animationDelay: `${0.2 + index * 0.1}s`, animationFillMode: 'both' }}
+  >
+    <div className="w-14 h-14 bg-gradient-to-br from-blue-500/20 to-purple-500/20 
+                  rounded-2xl flex items-center justify-center text-blue-400 
+                  group-hover:scale-110 group-hover:from-blue-500/30 group-hover:to-purple-500/30
+                  transition-all duration-300 backdrop-blur-sm border border-blue-500/20">
+      <Icon size={24} aria-hidden="true" />
+    </div>
+    <div className="space-y-1">
+      <h4 className="font-semibold text-white group-hover:text-blue-400 transition-colors duration-300">
+        {title}
+      </h4>
+      {href ? (
+        <a
+          href={href}
+          className="text-slate-400 hover:text-white transition-colors duration-300 
+                   text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg p-1"
+        >
+          {content}
+        </a>
+      ) : (
+        <p className="text-slate-400 text-lg">{content}</p>
+      )}
+    </div>
+  </div>
+))
+
+ContactInfoItem.displayName = 'ContactInfoItem'
+
+const Contact = memo(() => {
   const [formData, setFormData] = useState<FormData>({
     name: '',
     email: '',
@@ -29,6 +73,8 @@ const Contact = () => {
 
     if (!formData.name.trim()) {
       newErrors.name = 'Name is required'
+    } else if (formData.name.trim().length < 2) {
+      newErrors.name = 'Name must be at least 2 characters'
     }
 
     if (!formData.email.trim()) {
@@ -40,7 +86,7 @@ const Contact = () => {
     if (!formData.message.trim()) {
       newErrors.message = 'Message is required'
     } else if (formData.message.trim().length < 10) {
-      newErrors.message = 'Message must be at least 10 characters long'
+      newErrors.message = 'Message must be at least 10 characters'
     }
 
     setErrors(newErrors)
@@ -52,7 +98,6 @@ const Contact = () => {
       const { name, value } = e.target
       setFormData(prev => ({ ...prev, [name]: value }))
 
-      // Clear error for this field when user starts typing
       if (errors[name as keyof FormErrors]) {
         setErrors(prev => ({ ...prev, [name]: undefined }))
       }
@@ -70,13 +115,11 @@ const Contact = () => {
       setSubmitStatus('idle')
 
       try {
-        // Simulate API call - replace with actual implementation
-        await new Promise(resolve => setTimeout(resolve, 1000))
+        await new Promise(resolve => setTimeout(resolve, 1500))
 
         setSubmitStatus('success')
         setFormData({ name: '', email: '', message: '' })
 
-        // Reset success message after 5 seconds
         setTimeout(() => setSubmitStatus('idle'), 5000)
       } catch {
         setSubmitStatus('error')
@@ -87,105 +130,119 @@ const Contact = () => {
     [validateForm]
   )
 
+  const contactInfo = [
+    {
+      icon: Mail,
+      title: 'Email Us',
+      content: 'hello@nordiccodeworks.com',
+      href: 'mailto:hello@nordiccodeworks.com'
+    },
+    {
+      icon: MapPin,
+      title: 'Location',
+      content: 'Stockholm, Sweden'
+    },
+    {
+      icon: Clock,
+      title: 'Response Time',
+      content: 'Within 24 hours'
+    }
+  ]
+
   return (
     <section
       id="contact"
-      className="relative py-20 lg:py-32
-                 bg-gradient-to-br from-slate-100 to-slate-200
-                 dark:bg-gradient-to-br dark:from-slate-800 dark:to-slate-900
-                 transition-all duration-700"
+      className="relative py-20 lg:py-32 bg-gradient-to-br from-slate-100 to-slate-200 
+               dark:bg-gradient-to-br dark:from-slate-800 dark:to-slate-900 
+               transition-all duration-700 overflow-hidden"
       aria-labelledby="contact-title"
     >
-      {/* Angled separator */}
       <div
-        className="absolute top-[-5rem] left-0 w-full h-20 
-                   bg-white dark:bg-slate-900 transition-colors duration-700"
+        className="absolute top-[-5rem] left-0 w-full h-20
+                 bg-slate-900 transition-colors duration-700"
         style={{ clipPath: 'polygon(0 0, 100% 0, 100% 100%)' }}
         aria-hidden="true"
       />
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <header className="text-center mb-16">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+        <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-gradient-to-br from-blue-600/10 to-purple-600/10 
+                      rounded-full blur-3xl dark:from-blue-600/5 dark:to-purple-600/5" />
+        <div className="absolute bottom-1/4 left-1/4 w-80 h-80 bg-gradient-to-tr from-purple-600/10 to-blue-600/10 
+                      rounded-full blur-3xl dark:from-purple-600/5 dark:to-blue-600/5" />
+      </div>
+
+      <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-12">
+        <header className="text-center mb-16 lg:mb-20">
           <h2
             id="contact-title"
             className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight mb-6
-                       text-slate-900 dark:text-white transition-colors duration-700"
+                     text-slate-900 dark:text-white transition-colors duration-700
+                     animate-fade-in-up"
           >
             GET IN TOUCH
           </h2>
-          <p className="text-xl md:text-2xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
+          <p className="text-xl md:text-2xl text-slate-600 dark:text-slate-400 max-w-3xl mx-auto
+                      animate-fade-in-up"
+             style={{ animationDelay: '0.1s', animationFillMode: 'both' }}>
             Let's create something amazing together
           </p>
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
-          {/* Contact Information */}
+          
           <div className="space-y-8">
-            <div className="text-center lg:text-left">
-              <h3 className="text-2xl font-bold text-slate-800 dark:text-slate-200 mb-8">
+            <div className="space-y-6">
+              <h3 className="text-2xl font-bold text-slate-800 dark:text-slate-200 mb-8
+                           animate-fade-in-up"
+                  style={{ animationDelay: '0.2s', animationFillMode: 'both' }}>
                 Ready to Start Your Project?
               </h3>
-            </div>
 
-            {/* Contact Methods */}
-            <div className="space-y-6">
-              <div className="flex items-center justify-center lg:justify-start gap-4 group">
-                <div
-                  className="w-14 h-14 bg-blue-100 dark:bg-blue-900/30 rounded-2xl flex items-center justify-center 
-                               text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-all duration-300"
-                >
-                  <Mail size={24} aria-hidden="true" />
-                </div>
-                <a
-                  href="mailto:hello@nordiccodeworks.com"
-                  className="text-xl md:text-2xl font-semibold
-                           text-slate-800 dark:text-slate-200 
-                           hover:text-blue-600 dark:hover:text-blue-400 
-                           transition-colors duration-300
-                           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-lg p-1"
-                >
-                  hello@nordiccodeworks.com
-                </a>
-              </div>
-
-              <div className="flex items-center justify-center lg:justify-start gap-4 group">
-                <div
-                  className="w-14 h-14 bg-purple-100 dark:bg-purple-900/30 rounded-2xl flex items-center justify-center 
-                               text-purple-600 dark:text-purple-400 group-hover:scale-110 transition-all duration-300"
-                >
-                  <MapPin size={24} aria-hidden="true" />
-                </div>
-                <p className="text-xl md:text-2xl font-semibold text-slate-800 dark:text-slate-200">
-                  Stockholm, Sweden
-                </p>
+              <div className="space-y-6">
+                {contactInfo.map((info, index) => (
+                  <ContactInfoItem key={info.title} {...info} index={index} />
+                ))}
               </div>
             </div>
 
-            {/* Extra Info */}
             <div
-              className="bg-white/50 dark:bg-slate-700/50 backdrop-blur-sm border border-slate-200/50 dark:border-slate-600/50 
-                           rounded-2xl p-6 text-center lg:text-left"
+              className="bg-white/70 dark:bg-slate-700/50 backdrop-blur-sm 
+                       border border-slate-200/50 dark:border-slate-600/50
+                       rounded-3xl p-6 lg:p-8 animate-fade-in-up"
+              style={{ animationDelay: '0.5s', animationFillMode: 'both' }}
             >
-              <h4 className="font-bold text-slate-800 dark:text-slate-200 mb-2">Response Time</h4>
-              <p className="text-slate-600 dark:text-slate-400">
-                We typically respond within 24 hours during business days
-              </p>
+              <h4 className="font-bold text-slate-800 dark:text-slate-200 mb-4 text-lg">
+                What to Expect
+              </h4>
+              <ul className="space-y-3 text-slate-600 dark:text-slate-400">
+                <li className="flex items-center gap-3">
+                  <CheckCircle size={18} className="text-green-500 flex-shrink-0" />
+                  <span>Detailed project consultation</span>
+                </li>
+                <li className="flex items-center gap-3">
+                  <CheckCircle size={18} className="text-green-500 flex-shrink-0" />
+                  <span>Custom proposal within 48 hours</span>
+                </li>
+                <li className="flex items-center gap-3">
+                  <CheckCircle size={18} className="text-green-500 flex-shrink-0" />
+                  <span>Transparent pricing & timeline</span>
+                </li>
+              </ul>
             </div>
           </div>
 
-          {/* Contact Form */}
           <div
-            className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg 
-                       border border-slate-200/50 dark:border-slate-700/50
-                       rounded-3xl p-8 lg:p-10 shadow-xl
-                       transition-all duration-700"
+            className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-lg
+                     border border-slate-200/50 dark:border-slate-700/50
+                     rounded-3xl p-8 lg:p-10 shadow-2xl
+                     transition-all duration-700 animate-fade-in-up"
+            style={{ animationDelay: '0.3s', animationFillMode: 'both' }}
           >
-            <div className={isSubmitting ? 'opacity-50 pointer-events-none' : ''}>
+            <form onSubmit={handleSubmit} className={isSubmitting ? 'opacity-50 pointer-events-none' : ''}>
               <h3 className="text-2xl font-bold text-slate-800 dark:text-slate-200 mb-8 text-center">
                 Send us a message
               </h3>
 
-              {/* Name Field */}
               <div className="space-y-2 mb-6">
                 <label
                   htmlFor="name"
@@ -199,7 +256,7 @@ const Contact = () => {
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
-                  className={`w-full bg-slate-50 dark:bg-slate-700 border-2 rounded-xl px-4 py-3
+                  className={`w-full bg-slate-50 dark:bg-slate-700 border-2 rounded-2xl px-4 py-3
                            text-slate-900 dark:text-slate-100 placeholder-slate-500 dark:placeholder-slate-400
                            transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2
                            ${
@@ -219,7 +276,6 @@ const Contact = () => {
                 )}
               </div>
 
-              {/* Email Field */}
               <div className="space-y-2 mb-6">
                 <label
                   htmlFor="email"
@@ -233,7 +289,7 @@ const Contact = () => {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className={`w-full bg-slate-50 dark:bg-slate-700 border-2 rounded-xl px-4 py-3
+                  className={`w-full bg-slate-50 dark:bg-slate-700 border-2 rounded-2xl px-4 py-3
                            text-slate-900 dark:text-slate-100 placeholder-slate-500 dark:placeholder-slate-400
                            transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2
                            ${
@@ -253,7 +309,6 @@ const Contact = () => {
                 )}
               </div>
 
-              {/* Message Field */}
               <div className="space-y-2 mb-8">
                 <label
                   htmlFor="message"
@@ -267,7 +322,7 @@ const Contact = () => {
                   rows={5}
                   value={formData.message}
                   onChange={handleChange}
-                  className={`w-full bg-slate-50 dark:bg-slate-700 border-2 rounded-xl px-4 py-3
+                  className={`w-full bg-slate-50 dark:bg-slate-700 border-2 rounded-2xl px-4 py-3
                            text-slate-900 dark:text-slate-100 placeholder-slate-500 dark:placeholder-slate-400
                            transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 resize-y
                            ${
@@ -287,15 +342,11 @@ const Contact = () => {
                 )}
               </div>
 
-              {/* Submit Button */}
               <button
-                onClick={e => {
-                  e.preventDefault()
-                  handleSubmit(e as any)
-                }}
+                type="submit"
                 className="w-full bg-gradient-to-r from-blue-600 to-purple-600
                          hover:from-blue-700 hover:to-purple-700
-                         text-white font-bold text-lg py-4 px-8 rounded-xl
+                         text-white font-bold text-lg py-4 px-8 rounded-2xl
                          transform hover:scale-105 hover:-translate-y-1
                          transition-all duration-300 ease-out
                          shadow-lg hover:shadow-2xl hover:shadow-blue-500/25
@@ -312,12 +363,11 @@ const Contact = () => {
                   'Send Message'
                 )}
               </button>
-            </div>
+            </form>
 
-            {/* Status Messages */}
             {submitStatus === 'success' && (
               <div
-                className="mt-6 p-4 bg-green-100 dark:bg-green-900/30 border border-green-300 dark:border-green-700 rounded-xl"
+                className="mt-6 p-4 bg-green-100 dark:bg-green-900/30 border border-green-300 dark:border-green-700 rounded-2xl"
                 role="alert"
               >
                 <p className="text-green-800 dark:text-green-200 text-center font-semibold">
@@ -328,7 +378,7 @@ const Contact = () => {
 
             {submitStatus === 'error' && (
               <div
-                className="mt-6 p-4 bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 rounded-xl"
+                className="mt-6 p-4 bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 rounded-2xl"
                 role="alert"
               >
                 <p className="text-red-800 dark:text-red-200 text-center font-semibold">
@@ -341,6 +391,8 @@ const Contact = () => {
       </div>
     </section>
   )
-}
+})
+
+Contact.displayName = 'Contact'
 
 export default Contact

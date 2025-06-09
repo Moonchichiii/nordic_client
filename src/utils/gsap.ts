@@ -35,6 +35,52 @@ export const STAGGER = {
   loose: 0.15,
 } as const
 
+// === Suggested “basic” utilities (placeholders) ===
+
+// Basic GSAP animations that can be imported and used
+export const fadeInUpPlaceholder = (element: string | Element, delay: number = 0) => {
+  // Basic fade in up animation placeholder
+  // Replace console.log with a real GSAP tween if needed
+  console.log(`Animating ${element} with delay ${delay}`)
+}
+
+export const slideInRightPlaceholder = (element: string | Element, delay: number = 0) => {
+  // Slide in from right animation placeholder
+  console.log(`Sliding ${element} from right with delay ${delay}`)
+}
+
+export const staggerTextPlaceholder = (elements: string | Element[], delay: number = 0.1) => {
+  // Stagger text animation placeholder
+  console.log(`Staggering text elements with delay ${delay}`)
+}
+
+export const menuAnimationPlaceholder = {
+  open: (elements: Element[]) => {
+    // Menu open animation placeholder
+    console.log('Opening menu with animation')
+  },
+  close: (elements: Element[]) => {
+    // Menu close animation placeholder
+    console.log('Closing menu with animation')
+  }
+}
+
+// Custom easing strings for CSS (if you want to reference them outside GSAP)
+export const easings = {
+  bounce: 'cubic-bezier(0.68, -0.55, 0.265, 1.55)',
+  smooth: 'cubic-bezier(0.4, 0, 0.2, 1)',
+  premium: 'cubic-bezier(0.77, 0, 0.175, 1)',
+}
+
+// Duration constants as strings (for CSS transitions, etc.)
+export const durations = {
+  fast: '150ms',
+  normal: '300ms',
+  slow: '600ms',
+}
+
+// === End of basic placeholders ===
+
 // Create timeline with default settings
 export const createTimeline = (options?: gsap.TimelineVars): gsap.core.Timeline =>
   gsap.timeline({
@@ -56,8 +102,13 @@ export const animateText = {
       ease?: string
     } = {}
   ) => {
-    const { stagger = STAGGER.normal, delay = 0, duration = DURATION.normal, ease = 'premium' } = options
-    
+    const {
+      stagger = STAGGER.normal,
+      delay = 0,
+      duration = DURATION.normal,
+      ease = 'premium',
+    } = options
+
     // Create split text without storing unused reference
     new SplitText(element, {
       type: 'chars',
@@ -65,7 +116,7 @@ export const animateText = {
     })
 
     gsap.set('.char', { opacity: 0, y: 50 })
-    
+
     return gsap.to('.char', {
       opacity: 1,
       y: 0,
@@ -88,8 +139,13 @@ export const animateText = {
       ease?: string
     } = {}
   ) => {
-    const { stagger = STAGGER.normal, delay = 0, duration = DURATION.normal, ease = 'premium' } = options
-    
+    const {
+      stagger = STAGGER.normal,
+      delay = 0,
+      duration = DURATION.normal,
+      ease = 'premium',
+    } = options
+
     // Create split text without storing unused reference
     new SplitText(element, {
       type: 'words',
@@ -97,7 +153,7 @@ export const animateText = {
     })
 
     gsap.set('.word', { opacity: 0, y: 30 })
-    
+
     return gsap.to('.word', {
       opacity: 1,
       y: 0,
@@ -119,7 +175,7 @@ export const animations = {
     options: { delay?: number; duration?: number } = {}
   ) => {
     const { delay = 0, duration = DURATION.normal } = options
-    
+
     return gsap.fromTo(
       element,
       { opacity: 0, y: 60, scale: 0.95 },
@@ -135,7 +191,7 @@ export const animations = {
     options: { delay?: number; duration?: number } = {}
   ) => {
     const { delay = 0, duration = DURATION.normal } = options
-    
+
     return gsap.fromTo(
       element,
       { opacity: 0, x: 100 },
@@ -151,7 +207,7 @@ export const animations = {
     options: { delay?: number; duration?: number } = {}
   ) => {
     const { delay = 0, duration = DURATION.normal } = options
-    
+
     return gsap.fromTo(
       element,
       { opacity: 0, scale: 0.8 },
@@ -171,16 +227,16 @@ export const animations = {
       direction?: 'up' | 'down' | 'left' | 'right'
     } = {}
   ) => {
-    const { 
-      stagger = STAGGER.normal, 
-      delay = 0, 
+    const {
+      stagger = STAGGER.normal,
+      delay = 0,
       duration = DURATION.normal,
-      direction = 'up'
+      direction = 'up',
     } = options
-    
+
     const fromVars: gsap.TweenVars = { opacity: 0 }
     const toVars: gsap.TweenVars = { opacity: 1, duration, stagger, delay, ease: 'premium' }
-    
+
     switch (direction) {
       case 'up':
         fromVars.y = 50
@@ -199,7 +255,7 @@ export const animations = {
         toVars.x = 0
         break
     }
-    
+
     return gsap.fromTo(elements, fromVars, toVars)
   },
 }
@@ -263,7 +319,7 @@ export const menuAnimations = {
     footer: string | Element
   ) => {
     const tl = createTimeline()
-    
+
     tl.set([links, social, footer], { opacity: 0 })
       .set(links, { y: '120%' })
       .set(social, { scale: 0 })
@@ -276,20 +332,28 @@ export const menuAnimations = {
         ease: 'bounce',
         delay: 0.2,
       })
-      .to(social, {
-        scale: 1,
-        opacity: 1,
-        duration: DURATION.normal,
-        stagger: STAGGER.tight,
-        ease: 'bounce',
-      }, '-=0.4')
-      .to(footer, {
-        y: 0,
-        opacity: 1,
-        duration: DURATION.normal,
-        ease: 'premium',
-      }, '-=0.3')
-    
+      .to(
+        social,
+        {
+          scale: 1,
+          opacity: 1,
+          duration: DURATION.normal,
+          stagger: STAGGER.tight,
+          ease: 'bounce',
+        },
+        '-=0.4'
+      )
+      .to(
+        footer,
+        {
+          y: 0,
+          opacity: 1,
+          duration: DURATION.normal,
+          ease: 'premium',
+        },
+        '-=0.3'
+      )
+
     return tl
   },
 
@@ -302,21 +366,24 @@ export const menuAnimations = {
     footer: string | Element
   ) => {
     const tl = createTimeline()
-    
+
     tl.to(links, {
       y: '-120%',
       opacity: 0,
       duration: DURATION.fast,
       stagger: STAGGER.tight,
       ease: 'power2.in',
-    })
-      .to([social, footer], {
+    }).to(
+      [social, footer],
+      {
         scale: 0.8,
         opacity: 0,
         duration: DURATION.fast,
         ease: 'power2.in',
-      }, '-=0.2')
-    
+      },
+      '-=0.2'
+    )
+
     return tl
   },
 }
