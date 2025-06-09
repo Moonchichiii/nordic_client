@@ -35,36 +35,6 @@ export const STAGGER = {
   loose: 0.15,
 } as const
 
-// === Suggested “basic” utilities (placeholders) ===
-
-// Basic GSAP animations that can be imported and used
-export const fadeInUpPlaceholder = (element: string | Element, delay: number = 0) => {
-  // Basic fade in up animation placeholder
-  // Replace console.log with a real GSAP tween if needed
-  console.log(`Animating ${element} with delay ${delay}`)
-}
-
-export const slideInRightPlaceholder = (element: string | Element, delay: number = 0) => {
-  // Slide in from right animation placeholder
-  console.log(`Sliding ${element} from right with delay ${delay}`)
-}
-
-export const staggerTextPlaceholder = (elements: string | Element[], delay: number = 0.1) => {
-  // Stagger text animation placeholder
-  console.log(`Staggering text elements with delay ${delay}`)
-}
-
-export const menuAnimationPlaceholder = {
-  open: (elements: Element[]) => {
-    // Menu open animation placeholder
-    console.log('Opening menu with animation')
-  },
-  close: (elements: Element[]) => {
-    // Menu close animation placeholder
-    console.log('Closing menu with animation')
-  }
-}
-
 // Custom easing strings for CSS (if you want to reference them outside GSAP)
 export const easings = {
   bounce: 'cubic-bezier(0.68, -0.55, 0.265, 1.55)',
@@ -78,8 +48,6 @@ export const durations = {
   normal: '300ms',
   slow: '600ms',
 }
-
-// === End of basic placeholders ===
 
 // Create timeline with default settings
 export const createTimeline = (options?: gsap.TimelineVars): gsap.core.Timeline =>
@@ -109,7 +77,7 @@ export const animateText = {
       ease = 'premium',
     } = options
 
-    // Create split text without storing unused reference
+    // Create split text
     new SplitText(element, {
       type: 'chars',
       charsClass: 'char',
@@ -146,7 +114,7 @@ export const animateText = {
       ease = 'premium',
     } = options
 
-    // Create split text without storing unused reference
+    // Create split text
     new SplitText(element, {
       type: 'words',
       wordsClass: 'word',
@@ -219,7 +187,7 @@ export const animations = {
    * Stagger animation for multiple elements
    */
   staggerIn: (
-    elements: string | Element[],
+    targets: string | Element[],
     options: {
       stagger?: number
       delay?: number
@@ -256,7 +224,7 @@ export const animations = {
         break
     }
 
-    return gsap.fromTo(elements, fromVars, toVars)
+    return gsap.fromTo(targets, fromVars, toVars)
   },
 }
 
@@ -408,11 +376,11 @@ export const utils = {
    * Batch process elements
    */
   batch: (
-    elements: string | Element[],
+    targets: string | Element[],
     animation: (element: Element, index: number) => gsap.core.Tween
   ) => {
-    const targets = gsap.utils.toArray(elements) as Element[]
-    return targets.map(animation)
+    const elements = gsap.utils.toArray(targets) as Element[]
+    return elements.map(animation)
   },
 }
 

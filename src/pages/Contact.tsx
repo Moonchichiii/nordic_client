@@ -1,16 +1,28 @@
-import { Mail, MapPin, Clock, CheckCircle } from 'lucide-react'
+import { Mail, MapPin, Clock, CheckCircle, type LucideIcon } from 'lucide-react'
 import { useCallback, useState, memo } from 'react'
 
-interface FormData {
+// Types specific to Contact component (co-located)
+interface ContactFormData {
   name: string
   email: string
   message: string
 }
 
-interface FormErrors {
+interface ContactFormErrors {
   name?: string
   email?: string
   message?: string
+}
+
+interface ContactInfoItem {
+  icon: LucideIcon
+  title: string
+  content: string
+  href?: string
+}
+
+interface ContactInfoItemProps extends ContactInfoItem {
+  index: number
 }
 
 const ContactInfoItem = memo(({ 
@@ -19,13 +31,7 @@ const ContactInfoItem = memo(({
   content, 
   href, 
   index 
-}: { 
-  icon: any
-  title: string
-  content: string
-  href?: string
-  index: number 
-}) => (
+}: ContactInfoItemProps) => (
   <div 
     className="flex items-center gap-4 group animate-fade-in-up"
     style={{ animationDelay: `${0.2 + index * 0.1}s`, animationFillMode: 'both' }}
@@ -37,19 +43,19 @@ const ContactInfoItem = memo(({
       <Icon size={24} aria-hidden="true" />
     </div>
     <div className="space-y-1">
-      <h4 className="font-semibold text-white group-hover:text-blue-400 transition-colors duration-300">
+      <h4 className="font-semibold text-slate-900 dark:text-white group-hover:text-blue-400 transition-colors duration-300">
         {title}
       </h4>
       {href ? (
         <a
           href={href}
-          className="text-slate-400 hover:text-white transition-colors duration-300 
+          className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors duration-300 
                    text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg p-1"
         >
           {content}
         </a>
       ) : (
-        <p className="text-slate-400 text-lg">{content}</p>
+        <p className="text-slate-600 dark:text-slate-400 text-lg">{content}</p>
       )}
     </div>
   </div>
@@ -58,18 +64,18 @@ const ContactInfoItem = memo(({
 ContactInfoItem.displayName = 'ContactInfoItem'
 
 const Contact = memo(() => {
-  const [formData, setFormData] = useState<FormData>({
+  const [formData, setFormData] = useState<ContactFormData>({
     name: '',
     email: '',
     message: '',
   })
 
-  const [errors, setErrors] = useState<FormErrors>({})
+  const [errors, setErrors] = useState<ContactFormErrors>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle')
 
   const validateForm = useCallback((): boolean => {
-    const newErrors: FormErrors = {}
+    const newErrors: ContactFormErrors = {}
 
     if (!formData.name.trim()) {
       newErrors.name = 'Name is required'
@@ -98,7 +104,7 @@ const Contact = memo(() => {
       const { name, value } = e.target
       setFormData(prev => ({ ...prev, [name]: value }))
 
-      if (errors[name as keyof FormErrors]) {
+      if (errors[name as keyof ContactFormErrors]) {
         setErrors(prev => ({ ...prev, [name]: undefined }))
       }
     },
@@ -130,7 +136,7 @@ const Contact = memo(() => {
     [validateForm]
   )
 
-  const contactInfo = [
+  const contactInfo: ContactInfoItem[] = [
     {
       icon: Mail,
       title: 'Email Us',
@@ -152,14 +158,14 @@ const Contact = memo(() => {
   return (
     <section
       id="contact"
-      className="relative py-20 lg:py-32 bg-gradient-to-br from-slate-100 to-slate-200 
+      className="relative py-20 lg:py-32 bg-gradient-to-br from-slate-50 to-slate-100 
                dark:bg-gradient-to-br dark:from-slate-800 dark:to-slate-900 
                transition-all duration-700 overflow-hidden"
       aria-labelledby="contact-title"
     >
       <div
         className="absolute top-[-5rem] left-0 w-full h-20
-                 bg-slate-900 transition-colors duration-700"
+                 bg-slate-900 dark:bg-slate-900 transition-colors duration-700"
         style={{ clipPath: 'polygon(0 0, 100% 0, 100% 100%)' }}
         aria-hidden="true"
       />
@@ -182,7 +188,7 @@ const Contact = memo(() => {
             GET IN TOUCH
           </h2>
           <p className="text-xl md:text-2xl text-slate-600 dark:text-slate-400 max-w-3xl mx-auto
-                      animate-fade-in-up"
+                      animate-fade-in-up transition-colors duration-700"
              style={{ animationDelay: '0.1s', animationFillMode: 'both' }}>
             Let's create something amazing together
           </p>
@@ -193,7 +199,7 @@ const Contact = memo(() => {
           <div className="space-y-8">
             <div className="space-y-6">
               <h3 className="text-2xl font-bold text-slate-800 dark:text-slate-200 mb-8
-                           animate-fade-in-up"
+                           animate-fade-in-up transition-colors duration-700"
                   style={{ animationDelay: '0.2s', animationFillMode: 'both' }}>
                 Ready to Start Your Project?
               </h3>
@@ -208,13 +214,13 @@ const Contact = memo(() => {
             <div
               className="bg-white/70 dark:bg-slate-700/50 backdrop-blur-sm 
                        border border-slate-200/50 dark:border-slate-600/50
-                       rounded-3xl p-6 lg:p-8 animate-fade-in-up"
+                       rounded-3xl p-6 lg:p-8 animate-fade-in-up transition-colors duration-700"
               style={{ animationDelay: '0.5s', animationFillMode: 'both' }}
             >
-              <h4 className="font-bold text-slate-800 dark:text-slate-200 mb-4 text-lg">
+              <h4 className="font-bold text-slate-800 dark:text-slate-200 mb-4 text-lg transition-colors duration-700">
                 What to Expect
               </h4>
-              <ul className="space-y-3 text-slate-600 dark:text-slate-400">
+              <ul className="space-y-3 text-slate-600 dark:text-slate-400 transition-colors duration-700">
                 <li className="flex items-center gap-3">
                   <CheckCircle size={18} className="text-green-500 flex-shrink-0" />
                   <span>Detailed project consultation</span>
@@ -239,14 +245,14 @@ const Contact = memo(() => {
             style={{ animationDelay: '0.3s', animationFillMode: 'both' }}
           >
             <form onSubmit={handleSubmit} className={isSubmitting ? 'opacity-50 pointer-events-none' : ''}>
-              <h3 className="text-2xl font-bold text-slate-800 dark:text-slate-200 mb-8 text-center">
+              <h3 className="text-2xl font-bold text-slate-800 dark:text-slate-200 mb-8 text-center transition-colors duration-700">
                 Send us a message
               </h3>
 
               <div className="space-y-2 mb-6">
                 <label
                   htmlFor="name"
-                  className="block text-sm font-semibold text-slate-700 dark:text-slate-300"
+                  className="block text-sm font-semibold text-slate-700 dark:text-slate-300 transition-colors duration-700"
                 >
                   Name *
                 </label>
@@ -279,7 +285,7 @@ const Contact = memo(() => {
               <div className="space-y-2 mb-6">
                 <label
                   htmlFor="email"
-                  className="block text-sm font-semibold text-slate-700 dark:text-slate-300"
+                  className="block text-sm font-semibold text-slate-700 dark:text-slate-300 transition-colors duration-700"
                 >
                   Email *
                 </label>
@@ -312,7 +318,7 @@ const Contact = memo(() => {
               <div className="space-y-2 mb-8">
                 <label
                   htmlFor="message"
-                  className="block text-sm font-semibold text-slate-700 dark:text-slate-300"
+                  className="block text-sm font-semibold text-slate-700 dark:text-slate-300 transition-colors duration-700"
                 >
                   Message *
                 </label>
@@ -367,10 +373,10 @@ const Contact = memo(() => {
 
             {submitStatus === 'success' && (
               <div
-                className="mt-6 p-4 bg-green-100 dark:bg-green-900/30 border border-green-300 dark:border-green-700 rounded-2xl"
+                className="mt-6 p-4 bg-green-100 dark:bg-green-900/30 border border-green-300 dark:border-green-700 rounded-2xl transition-colors duration-700"
                 role="alert"
               >
-                <p className="text-green-800 dark:text-green-200 text-center font-semibold">
+                <p className="text-green-800 dark:text-green-200 text-center font-semibold transition-colors duration-700">
                   Thanks for your message! We'll get back to you soon. 🎉
                 </p>
               </div>
@@ -378,10 +384,10 @@ const Contact = memo(() => {
 
             {submitStatus === 'error' && (
               <div
-                className="mt-6 p-4 bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 rounded-2xl"
+                className="mt-6 p-4 bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 rounded-2xl transition-colors duration-700"
                 role="alert"
               >
-                <p className="text-red-800 dark:text-red-200 text-center font-semibold">
+                <p className="text-red-800 dark:text-red-200 text-center font-semibold transition-colors duration-700">
                   Something went wrong. Please try again later.
                 </p>
               </div>

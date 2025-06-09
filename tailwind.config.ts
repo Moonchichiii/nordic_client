@@ -1,3 +1,4 @@
+// tailwind.config.ts
 import type { Config } from 'tailwindcss'
 
 const config: Config = {
@@ -5,11 +6,67 @@ const config: Config = {
     './index.html',
     './src/**/*.{js,ts,jsx,tsx}',
   ],
-  
-  darkMode: 'class',
-  
+ 
+  darkMode: 'selector', 
+ 
   theme: {
     extend: {
+      colors: {
+        primary: {
+          light: '#ffffff',      
+          'light-alt': '#f8fafc', 
+          
+          DEFAULT: '#1e293b',    
+          dark: '#0f172a',       
+          'dark-alt': '#334155', 
+        },
+
+        secondary: {
+          light: '#f1f5f9',      
+          'light-alt': '#e2e8f0', 
+          
+          DEFAULT: '#475569',     
+          dark: '#1e293b',       
+          'dark-alt': '#0f172a', 
+        },
+
+        text: {
+          primary: {
+            light: '#0f172a',    
+            dark: '#f8fafc',     
+          },
+          secondary: {
+            light: '#475569',    
+            dark: '#cbd5e1',     
+          },
+          muted: {
+            light: '#64748b',    
+            dark: '#94a3b8',     
+          },
+        },
+
+        accent: {
+          blue: {
+            light: '#3b82f6',    
+            DEFAULT: '#2563eb',  
+            dark: '#1d4ed8',     
+          },
+          purple: {
+            light: '#8b5cf6',    
+            DEFAULT: '#7c3aed',  
+            dark: '#6d28d9',     
+          },
+        },
+
+        border: {
+          light: '#e2e8f0',      
+          'light-alt': '#cbd5e1', 
+          
+          dark: '#334155',       
+          'dark-alt': '#475569', 
+        },
+      },
+
       container: {
         center: true,
         padding: {
@@ -19,21 +76,21 @@ const config: Config = {
         },
         screens: {
           xs: '480px',
-          sm: '640px',
+          sm: '640px', 
           md: '768px',
           lg: '1024px',
           xl: '1280px',
           '2xl': '1400px',
         },
       },
-      
+     
       fontFamily: {
         'heading': ['Archivo Black', 'system-ui', 'sans-serif'],
-        'body': ['Inter', 'system-ui', 'sans-serif'],
+        'body': ['Inter', 'system-ui', 'sans-serif'], 
         'display': ['Space Grotesk', 'system-ui', 'sans-serif'],
         'sans': ['Inter', 'system-ui', 'sans-serif'],
       },
-      
+     
       fontSize: {
         'fluid-xs': 'clamp(0.75rem, 1vw + 0.25rem, 0.875rem)',
         'fluid-sm': 'clamp(0.875rem, 1.25vw + 0.25rem, 1rem)',
@@ -46,7 +103,7 @@ const config: Config = {
         'title': 'clamp(1.875rem, 5vw + 0.5rem, 3.5rem)',
         'subtitle': 'clamp(1.25rem, 3vw + 0.25rem, 2rem)',
       },
-      
+     
       spacing: {
         'fluid-xs': 'clamp(0.25rem, 1vw, 0.5rem)',
         'fluid-sm': 'clamp(0.5rem, 2vw, 1rem)',
@@ -55,26 +112,7 @@ const config: Config = {
         'fluid-xl': 'clamp(2rem, 5vw, 4rem)',
         'fluid-2xl': 'clamp(3rem, 6vw, 6rem)',
       },
-      
-      colors: {
-        'theme': 'var(--theme-color)',
-        'accent': 'var(--accent-color)',
-        'primary': {
-          50: '#eff6ff',
-          500: '#3b82f6',
-          600: '#2563eb',
-          700: '#1d4ed8',
-          900: '#1e3a8a',
-        },
-        'purple': {
-          50: '#faf5ff',
-          500: '#8b5cf6',
-          600: '#7c3aed',
-          700: '#6d28d9',
-          900: '#581c87',
-        },
-      },
-      
+     
       animation: {
         'float': 'float 6s ease-in-out infinite',
         'fade-in-up': 'fadeInUp 0.6s ease-out both',
@@ -82,7 +120,7 @@ const config: Config = {
         'pulse-slow': 'pulse 3s ease-in-out infinite',
         'bounce-gentle': 'bounce 2s infinite',
       },
-      
+     
       keyframes: {
         float: {
           '0%, 100%': { transform: 'translate(0, 0) rotate(0deg)' },
@@ -98,22 +136,22 @@ const config: Config = {
           '100%': { opacity: '1', transform: 'translateX(0)' },
         },
       },
-      
+     
       transitionTimingFunction: {
         'bounce': 'cubic-bezier(0.68, -0.55, 0.265, 1.55)',
         'smooth': 'cubic-bezier(0.4, 0, 0.2, 1)',
         'premium': 'cubic-bezier(0.77, 0, 0.175, 1)',
         'elastic': 'cubic-bezier(0.25, 0.46, 0.45, 0.94)',
       },
-      
+     
       transitionDuration: {
         '250': '250ms',
-        '400': '400ms',
+        '400': '400ms', 
         '600': '600ms',
         '800': '800ms',
         '1200': '1200ms',
       },
-      
+     
       backdropBlur: {
         'xs': '2px',
         'sm': '4px',
@@ -122,7 +160,7 @@ const config: Config = {
         '2xl': '32px',
         '3xl': '64px',
       },
-      
+     
       aspectRatio: {
         'video': '16 / 9',
         'square': '1 / 1',
@@ -130,13 +168,13 @@ const config: Config = {
         'landscape': '4 / 3',
         'ultrawide': '21 / 9',
       },
-      
+     
       borderRadius: {
         'fluid': 'clamp(0.5rem, 1vw, 1rem)',
         'fluid-lg': 'clamp(0.75rem, 1.5vw, 1.5rem)',
         'fluid-xl': 'clamp(1rem, 2vw, 2rem)',
       },
-      
+     
       boxShadow: {
         'glass': '0 8px 32px 0 rgba(31, 38, 135, 0.37)',
         'glow': '0 0 20px var(--theme-color)',
@@ -144,7 +182,7 @@ const config: Config = {
         'float': '0 10px 40px rgba(0, 0, 0, 0.1)',
         'float-lg': '0 20px 60px rgba(0, 0, 0, 0.15)',
       },
-      
+     
       gridTemplateColumns: {
         'auto-fit': 'repeat(auto-fit, minmax(250px, 1fr))',
         'auto-fill': 'repeat(auto-fill, minmax(200px, 1fr))',
@@ -153,14 +191,13 @@ const config: Config = {
       },
     },
   },
-  
-  plugins: [
-  ],
-  
+ 
+  plugins: [],
+ 
   corePlugins: {
     preflight: true,
   },
-  
+ 
   future: {
     hoverOnlyWhenSupported: true,
   },
